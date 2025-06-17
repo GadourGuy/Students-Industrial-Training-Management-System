@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Create Account</title>
+	<link rel="icon" href="https://brand.utm.my/wp-content/uploads/sites/21/2020/08/cropped-UTMsiteicon-32x32.png">
+	<link rel="stylesheet" href="../style/style.css">
+	<link rel="stylesheet" href="../style/createAccountStyle.css">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+	<header class="header">
+		<img src="../images/LOGO UTM.png" alt="UTM Logo" class="logo">
+		<nav class="nav-menu">
+			<a href="https://www.utm.my/about/">About UTM</a>
+			<a href="https://admission.utm.my/undergraduate-malaysian/">Programs</a>
+			<a href="#">Enrollment</a>
+		</nav>
+	</header>
+
+	<main class="form-container">
+		<form class="enrollment-form" action="createAccount.php" method="post">
+			<h1>Create Account</h1>
+
+			<label for="firstName">First Name <span>*</span></label>
+			<input type="text" id="firstName" name="firstName" required>
+
+			<label for="lastName">Last Name <span>*</span></label>
+			<input type="text" id="lastName" name="lastName" required>
+
+			<label for="UTMID">UTMID<span>*</span></label>
+			<input type="text" id="UTMID" name="UTMID" required>
+
+			<label for="email">Email <span>*</span></label>
+			<input type="email" id="email" name="email" required>
+
+			<label for="password">Password <span>*</span></label>
+			<input type="password" id="password" name="password" required>
+
+			<label for="confirmPassword">Confirm Password <span>*</span></label>
+			<input type="password" id="confirmPassword" name="confirmPassword" required>
+
+			<button type="submit">Create Account</button>
+
+			<p class="login-link">Already have an account? <a href="./loginPage.html">Login</a></p>
+		</form>
+	</main>
+
+	<footer class="footer">
+		<div class="footer-content">
+			<div class="footer-left">
+				<p>&copy; 2024 Universiti Teknologi Malaysia</p>
+			</div>
+			<div class="footer-links">
+				<h4>Quick Links</h4>
+				<a href="https://www.utm.my/about/">About UTM</a>
+				<a href="./studentEnrollmentCenter.html">Enrollment</a>
+				<a href="https://admission.utm.my/undergraduate-malaysian/">Programs</a>
+				<a href="https://admission.utm.my/contact-us/">Help/Support</a>
+			</div>
+			<div class="footer-contact">
+				<h4>Contact Information</h4>
+				<p><strong>Location:</strong> 81310 UTM Johor Bahru, Johor, Malaysia</p>
+				<p><strong>Email:</strong> corporate@utm.my</p>
+				<p><strong>Phone:</strong> +6 07-553 3333</p>
+			</div>
+		</div>
+	</footer>
+</body>
+</html>

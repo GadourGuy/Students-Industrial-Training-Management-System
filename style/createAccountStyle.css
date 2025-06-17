@@ -1,0 +1,93 @@
+.form-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-height: 90vh;
+	padding: 20px;
+}
+
+.enrollment-form {
+	background-color: white;
+	border: 1px solid #D8D8D7;
+	border-radius: 16px;
+	padding: 40px 30px;
+	width: 100%;
+	max-width: 600px;
+	box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+	transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.enrollment-form:hover {
+	transform: translateY(-5px);
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.enrollment-form h1 {
+	background-color: #5C001F;
+	color: white;
+	padding: 15px;
+	border-radius: 12px;
+	font-size: 28px;
+	text-align: center;
+	margin-bottom: 30px;
+}
+
+.enrollment-form label {
+	display: block;
+	margin-bottom: 6px;
+	font-weight: 500;
+}
+
+.enrollment-form span {
+	color: #F13B28;
+}
+
+.enrollment-form input {
+	width: 100%;
+	padding: 12px;
+	border-radius: 8px;
+	border: 1px solid #D8D8D7;
+	margin-bottom: 20px;
+	box-sizing: border-box;
+	transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.enrollment-form input:hover,
+.enrollment-form input:focus {
+	border-color: #5C001F;
+	box-shadow: 0 0 8px rgba(92, 0, 31, 0.3);
+	outline: none;
+}
+
+.enrollment-form button {
+	width: 100%;
+	padding: 14px;
+	background-color: #5C001F;
+	color: white;
+	border: none;
+	border-radius: 12px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.enrollment-form button:hover {
+	background-color: #430017;
+	transform: scale(1.03);
+}
+
+.login-link {
+	text-align: center;
+	margin-top: 20px;
+}
+
+.login-link a {
+	color: #5C001F;
+	text-decoration: underline;
+	transition: color 0.3s ease;
+}
+
+.login-link a:hover {
+	color: #430017;
+	opacity: 0.7;
+}
