@@ -1,0 +1,175 @@
+/* adminTableStyle.css */
+.admin-page-title {
+  text-align: center;
+  font-size: 36px;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.admin-subtitle {
+  text-align: center;
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 2rem;
+  font-family: 'Poppins', sans-serif;
+}
+
+.back-button {
+  color: #800000; /* UTM maroon */
+  font-weight: 500;
+  font-size: 1rem;
+  text-decoration: none;
+  margin: 1rem 0;
+  display: inline; /* make sure it's inline */
+  font-family: 'Poppins', sans-serif;
+  transition: color 0.2s ease, text-decoration 0.2s ease;
+}
+
+.back-button:hover {
+  color: #a32121;
+  text-decoration: underline;
+}
+
+
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  max-width: 900px;
+}
+
+.stat-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #800000; /* UTM color */
+  margin-bottom: 0.5rem;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.stat-label {
+  font-size: 1rem;
+  color: #555;
+  font-family: 'Poppins', sans-serif;
+}
+
+.records-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.5rem;
+  background-color: #fff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  overflow: hidden;
+  font-family: 'Poppins', sans-serif;
+}
+
+.records-table th,
+.records-table td {
+  padding: 14px 20px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.records-table thead {
+  background-color: #f7f7f7;
+  font-weight: 600;
+  color: #333;
+}
+
+.records-table tbody tr:nth-child(even) {
+  background-color: #f0f0f0;
+}
+
+.records-table tbody tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+.records-table tbody tr:hover {
+  background-color: #e0f7f7;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+
+.action-btn {
+  padding: 6px 12px;
+  margin-right: 5px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: white;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.action-btn:hover {
+  background-color: #730627;
+  transform: scale(1.05);
+}
+
+.action-btn.edit {
+  background-color: #560319;
+  color: white;
+}
+
+.action-btn.edit:hover {
+  background-color: #730627;
+}
+
+.action-btn.danger {
+  background-color: #ffba2d;
+}
+
+.action-btn.danger:hover {
+  background-color: #222;
+}
+
+.student-checkbox,
+#selectAll {
+  transform: scale(1.2);
+  cursor: pointer;
+}
+
+/* Search & Filter */
+.search-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2rem;
+  gap: 1rem;
+}
+
+.search-input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+.filter-select {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+

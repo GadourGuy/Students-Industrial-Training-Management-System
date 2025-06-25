@@ -19,22 +19,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     switch ($prefix) {
         case 'A':
             $table = 'student';
-            $redirect = '../public/studentHome.html';
+            $redirect = '../public/studentHome.php';
             break;
         case 'C':
             $table = 'coordinator';
-            $redirect = '../public/coordinatorHome.html';
+            $redirect = '../public/coordinatorHome.php';
             break;
         case 'M':
             $table = 'admin';
-            $redirect = '../public/adminHome.html';
+            $redirect = '../public/adminHome.php';
             break;
         default:
             echo "Invalid UTMID prefix.";
             exit;
     }
 
-    // Insert into the correct table
     $sql = "INSERT INTO $table (first_name, last_name, utmid, email, password)
             VALUES ('$firstName', '$lastName', '$utmid', '$email', '$password')";
 
