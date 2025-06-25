@@ -1,0 +1,165 @@
+/* styles.css */
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	font-family: 'Poppins', sans-serif;
+}
+
+body {
+	background-color: white;
+	color: black;
+	line-height: 1.6;
+}
+
+.header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 24px 48px;
+	border-bottom: 1px solid #111;
+	flex-wrap: wrap;
+}
+
+.logo {
+	width: 272px;
+	height: 90px;
+}
+
+.nav-menu {
+	display: flex;
+	gap: 24px;
+}
+
+.nav-menu a {
+	text-decoration: none;
+	font-weight: 600;
+	font-size: 16px;
+	color: black;
+}
+
+nav a{
+    color: #fff;
+    text-decoration: none;
+    font-size: 18px;
+    position: relative;
+}
+
+
+nav a:hover {
+	opacity: 0.5;
+}
+nav a::after{
+    content: '';
+    width: 0;
+    height: 3px;
+    background: rgb(128, 0, 43);
+    position: absolute;
+    left: 0;
+    bottom: -6px;
+    transition: 0.5s;
+}
+nav a:hover::after{
+    width: 100%;
+}
+
+.hero {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+}
+
+.hero-img {
+	width: 100%;
+	height: auto;
+}
+
+.hero-text {
+	position: absolute;
+	color: white;
+	font-size: 2rem;
+	font-weight: 600;
+	text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+	padding: 2rem;
+}
+
+.enroll-button {
+	display: flex;
+	justify-content: center;
+	padding: 2rem;
+}
+
+.button {
+	background-color: #F8A617;
+	color: white;
+	padding: 1rem 2rem;
+	border-radius: 14px;
+	text-decoration: none;
+	font-family: "Montserrat", sans-serif;
+  	font-optical-sizing: auto;
+	font-weight: 600;
+	font-size: 16px;
+	font-style: normal;
+}
+.button:hover {
+	opacity: 0.7;
+	transform: translateY(-5px);
+	box-shadow: 0px 15px 25px rgba(0, 0, 0, 0.2);
+	color: black;
+}
+
+.footer {
+	background-color: #5C001F;
+	color: white;
+	padding: 2rem 1rem;
+}
+
+.footer-content {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: 2rem;
+}
+
+.footer-links,
+.footer-contact {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.footer-links h4,
+.footer-contact h4 {
+	font-weight: 600;
+}
+
+.footer a {
+	color: white;
+	text-decoration: none;
+	font-weight: 400;
+}
+
+.footer a:hover {
+	opacity: 0.5;
+}
+
+@media (max-width: 768px) {
+	.hero-text {
+		font-size: 1.5rem;
+	}
+
+	.footer-content {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.nav-menu {
+		flex-direction: column;
+		gap: 12px;
+		margin-top: 10px;
+	}
+}
+
