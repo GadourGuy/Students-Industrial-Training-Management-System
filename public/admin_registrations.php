@@ -1,163 +1,68 @@
 <?php
 session_start();
-require('../backend/config.php');
+include('../config.php');
 
-// Check if user is logged in and is an admin
-if (!isset($_SESSION["Login"]) || $_SESSION["Login"] != "YES" || $_SESSION["ROLE"] != "M") {
-    header("Location: loginPage.html");
-    exit;
+if (!isset($_SESSION['utmid']) || $_SESSION['role'] !== 'admin') {
+    header("Location: ../index.html");
+    exit();
 }
 
-// Handle AJAX request for approval update
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['matric_no']) && isset($_POST['status'])) {
-    $matric_no = $_POST['matric_no'];
-    $status = $_POST['status'];
+$message = '';
+$message_type = '';
 
-    $stmt = $conn->prepare("UPDATE enrollment SET approval_status = ? WHERE matric_no = ?");
-    $stmt->bind_param("ss", $status, $matric_no);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $application_id = isset($_POST['application_id']) ? htmlspecialchars(trim($_POST['application_id'])) : '';
+    $action = isset($_POST['action']) ? htmlspecialchars(trim($_POST['action'])) : '';
 
-    if ($stmt->execute()) {
-        echo json_encode(["success" => true]);
-    } else {
-        echo json_encode(["success" => false, "error" => $conn->error]);
-    }
-    exit;
-}
+    if (empty($application_id) || empty($action)) {
+        $message = "Invalid action. Application ID and action must be provided.";
+        $message_type = 'error';
+    } elseif ($action === 'approve' || $action === 'reject') {
+        $status = ($action === 'approve') ? 'approved' : 'rejected';
 
-// Normal page rendering
-$admin_utmid = $_SESSION["utmid"];
-$admin_sql = "SELECT first_name, last_name FROM admin WHERE utmid = '$admin_utmid'";
-$admin_result = mysqli_query($conn, $admin_sql);
-$admin = mysqli_fetch_assoc($admin_result);
-$admin_name = $admin['first_name'] . ' ' . $admin['last_name'];
+        $update_sql = "UPDATE users SET registration_status = ? WHERE utmid = ?";
+        $update_stmt = mysqli_prepare($conn, $update_sql);
 
-$students_sql = "SELECT * FROM enrollment ORDER BY matric_no ASC";
-$students_result = mysqli_query($conn, $students_sql);
-?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Student Applications - Admin Dashboard</title>
-  <link rel="stylesheet" href="../style/style.css" />
-  <link rel="stylesheet" href="../style/homeStyle.css" />
-  <link rel="stylesheet" href="../style/tableStyle.css" />
-  <link rel="stylesheet" href="../style/studentTableStyle.css" />
-</head>
-<body>
-  <header class="header">
-    <img src="../images/LOGO UTM.png" alt="UTM Logo" class="logo" />
-    <nav class="nav-menu">
-      <a href="https://www.utm.my/about/">About UTM</a>
-      <a href="https://admission.utm.my/undergraduate-malaysian/">Programs</a>
-      <a href="../backend/logout.php" style="color: #ff4444;">Logout</a>
-    </nav>
-  </header>
-
-  <main class="student-table-wrapper">
-    <h1 class="student-title">Student Applications</h1>
-
-    <div class="student-toolbar">
-      <input type="text" id="searchInput" placeholder="Search by name or student ID..." onkeyup="searchStudents()" class="student-search" />
-      <div class="student-count">Total Students: <?php echo mysqli_num_rows($students_result); ?></div>
-    </div>
-
-    <table id="studentsTable" class="students-table">
-      <thead>
-        <tr>
-          <th>Matric No</th>
-          <th>Full Name</th>
-          <th>Email</th>
-          <th>Registration Date</th>
-          <th>Message</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php while ($student = mysqli_fetch_assoc($students_result)): ?>
-          <tr>
-            <td class="student-id"><?php echo htmlspecialchars($student['matric_no']); ?></td>
-            <td><?php echo htmlspecialchars($student['full_name']); ?></td>
-            <td><?php echo htmlspecialchars($student['email']); ?></td>
-            <td><?php echo date('M d, Y', strtotime($student['submitted_at'] ?? 'now')); ?></td>
-            <td>
-              <a href="#" onclick="toggleMessage(this); return false;">Show Message</a>
-              <div class="reason-text" style="display: none;"><?php echo nl2br(htmlspecialchars($student['reason'])); ?></div>
-            </td>
-            <td>
-              <div style="display: flex; gap: 8px;">
-                <button onclick="updateStatus('<?php echo $student['matric_no']; ?>', 'Approved')" class="btn-approve">Approve</button>
-                <button onclick="updateStatus('<?php echo $student['matric_no']; ?>', 'Rejected')" class="btn-reject">Reject</button>
-              </div>
-            </td>
-          </tr>
-        <?php endwhile; ?>
-      </tbody>
-    </table>
-
-    <?php if (mysqli_num_rows($students_result) == 0): ?>
-      <div class="no-students-box">
-        <h3>No Students Found</h3>
-        <p>There are currently no student applications in the system.</p>
-      </div>
-    <?php endif; ?>
-  </main>
-
-  <footer class="footer">
-    <div class="footer-content">
-      <div class="footer-left">
-        <p>&copy; 2025 Universiti Teknologi Malaysia</p>
-      </div>
-      <div class="footer-links">
-        <h4>Quick Links</h4>
-        <a href="https://www.utm.my/about/">About UTM</a>
-        <a href="./studentEnrollmentCenter.html">Enrollment</a>
-        <a href="https://admission.utm.my/undergraduate-malaysian/">Programs</a>
-        <a href="https://admission.utm.my/contact-us/">Help/Support</a>
-      </div>
-      <div class="footer-contact">
-        <h4>Contact Information</h4>
-        <p><strong>Location:</strong> 81310 UTM Johor Bahru, Johor, Malaysia</p>
-        <p><strong>Email:</strong> corporate@utm.my</p>
-        <p><strong>Phone:</strong> +6 07-553 3333</p>
-      </div>
-    </div>
-  </footer>
-
-  <script>
-    function searchStudents() {
-      const input = document.getElementById('searchInput').value.toUpperCase();
-      const rows = document.querySelectorAll('#studentsTable tbody tr');
-      rows.forEach(row => {
-        const id = row.cells[0].textContent.toUpperCase();
-        const name = row.cells[1].textContent.toUpperCase();
-        row.style.display = id.includes(input) || name.includes(input) ? '' : 'none';
-      });
-    }
-
-    function toggleMessage(link) {
-      const div = link.nextElementSibling;
-      div.style.display = div.style.display === 'none' ? 'block' : 'none';
-      link.textContent = div.style.display === 'block' ? 'Hide Message' : 'Show Message';
-    }
-
-    function updateStatus(matricNo, status) {
-      fetch('', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ matric_no: matricNo, status: status })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          alert(`Student ${matricNo} ${status.toLowerCase()} successfully.`);
+        if ($update_stmt === false) {
+            error_log("Failed to prepare update statement for application: " . mysqli_error($conn));
+            $message = "An internal server error occurred while processing application.";
+            $message_type = 'error';
         } else {
-          alert("Failed to update: " + data.error);
+            mysqli_stmt_bind_param($update_stmt, "ss", $status, $application_id);
+            if (mysqli_stmt_execute($update_stmt)) {
+                $message = "Application successfully " . $status . ".";
+                $message_type = 'success';
+            } else {
+                error_log("Error executing update statement for application: " . mysqli_stmt_error($update_stmt));
+                $message = "Failed to update application status.";
+                $message_type = 'error';
+            }
+            mysqli_stmt_close($update_stmt);
         }
-      })
-      .catch(err => alert("Request failed: " + err));
+    } else {
+        $message = "Invalid action specified.";
+        $message_type = 'error';
     }
-  </script>
-</body>
-</html>
+}
+
+$pending_applications = [];
+$sql = "SELECT utmid, username, email, program_name, registration_status, phone_number FROM users WHERE role = 'student' AND registration_status = 'pending'";
+$stmt = mysqli_prepare($conn, $sql);
+
+if ($stmt === false) {
+    error_log("Failed to prepare pending applications statement: " . mysqli_error($conn));
+    $applications_error = "Error fetching pending applications. Please try again.";
+} else {
+    if (mysqli_stmt_execute($stmt)) {
+        $result = mysqli_stmt_get_result($stmt);
+        if ($result) {
+            while ($row = mysqli_fetch_assoc($result)) {
+                $pending_applications[] = array_map('htmlspecialchars', $row);
+            }
+        } else {
+            error_log("Error getting pending applications result: " . mysqli_stmt_error($stmt));
+            $applications_error = "Error fetching pending applications. Please try again.";
+        }
+    } else {
+        error_log("Error executing pending applications statement: " . mysqli_stmt_error($stmt));
+        $applications_error = "Error fetching pending applications. Please try again

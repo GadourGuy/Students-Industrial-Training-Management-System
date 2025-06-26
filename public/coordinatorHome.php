@@ -1,122 +1,133 @@
 <?php
 session_start();
-require('../backend/config.php');
+include('config.php');
 
-// Check if user is logged in and is a coordinator
-if (!isset($_SESSION["Login"]) || $_SESSION["Login"] != "YES" || $_SESSION["ROLE"] != "C") {
-    header("Location: loginPage.html");
-    exit;
+if (!isset($_SESSION['utmid']) || $_SESSION['role'] !== 'coordinator') {
+    header("Location: index.html");
+    exit();
 }
 
-// Fetch coordinator data from database
-$utmid = $_SESSION["utmid"];
-$sql = "SELECT * FROM coordinator WHERE utmid = '$utmid'";
-$result = mysqli_query($conn, $sql);
+$total_students_assigned = 0;
+$pending_enrollments = 0;
+$approved_enrollments = 0;
+$rejected_enrollments = 0;
 
-if ($result && mysqli_num_rows($result) == 1) {
-    $coordinator = mysqli_fetch_assoc($result);
+$coordinator_username = htmlspecialchars($_SESSION['username']);
+
+$conn_error = false;
+if ($conn === false) {
+    error_log("Database connection failed in coordinatorHome.php: " . mysqli_connect_error());
+    $conn_error = true;
 } else {
-    echo "Error fetching coordinator data.";
-    exit;
+    $sqls = [
+        'total_students_assigned' => "SELECT COUNT(*) AS count FROM users WHERE role = 'student'",
+        'pending_enrollments' => "SELECT COUNT(*) AS count FROM enrollment WHERE status = 'pending'",
+        'approved_enrollments' => "SELECT COUNT(*) AS count FROM enrollment WHERE status = 'approved'",
+        'rejected_enrollments' => "SELECT COUNT(*) AS count FROM enrollment WHERE status = 'rejected'"
+    ];
+
+    foreach ($sqls as $key => $sql) {
+        $stmt = mysqli_prepare($conn, $sql);
+        if ($stmt === false) {
+            error_log("Failed to prepare statement for " . $key . ": " . mysqli_error($conn));
+            continue;
+        }
+        if (mysqli_stmt_execute($stmt)) {
+            $result = mysqli_stmt_get_result($stmt);
+            if ($result && $row = mysqli_fetch_assoc($result)) {
+                if ($key === 'total_students_assigned') {
+                    $total_students_assigned = htmlspecialchars($row['count']);
+                } elseif ($key === 'pending_enrollments') {
+                    $pending_enrollments = htmlspecialchars($row['count']);
+                } elseif ($key === 'approved_enrollments') {
+                    $approved_enrollments = htmlspecialchars($row['count']);
+                } elseif ($key === 'rejected_enrollments') {
+                    $rejected_enrollments = htmlspecialchars($row['count']);
+                }
+            } else {
+                error_log("Error getting result for " . $key . ": " . mysqli_stmt_error($stmt));
+            }
+        } else {
+            error_log("Error executing statement for " . $key . ": " . mysqli_stmt_error($stmt));
+        }
+        mysqli_stmt_close($stmt);
+    }
+    mysqli_close($conn);
 }
-
-// Get coordinator details
-$coordinator_name = $coordinator['first_name'] . ' ' . $coordinator['last_name'];
-$coordinator_email = $coordinator['email'];
-$coordinator_utmid = $coordinator['utmid'];
-
-// Get statistics for coordinator dashboard
-$student_count_sql = "SELECT COUNT(*) as count FROM student";
-$student_count_result = mysqli_query($conn, $student_count_sql);
-$student_count = mysqli_fetch_assoc($student_count_result)['count'];
-
-
-
-
-$position = "Industrial Training Coordinator"; 
-$department = "Faculty of Computing";
-
-mysqli_close($conn);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Industrial Training - Coordinator Dashboard</title>
-  <link rel="icon" href="https://brand.utm.my/wp-content/uploads/sites/21/2020/08/cropped-UTMsiteicon-32x32.png" sizes="32x32" />
-  <link rel="stylesheet" href="../style/style.css" />
-  <link rel="stylesheet" href="../style/homeStyle.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coordinator Dashboard</title>
+    <link rel="stylesheet" href="./style/style.css">
 </head>
 <body>
-  <header class="header">
-    <img src="../images/LOGO UTM.png" alt="UTM Logo" class="logo" />
-    <nav class="nav-menu">
-      <a href="https://www.utm.my/about/">About UTM</a>
-      <a href="https://admission.utm.my/undergraduate-malaysian/">Programs</a>
-      <a href="../backend/logout.php" style="color: #ff4444;">Logout</a>
-    </nav>
-  </header>
+    <header class="header">
+        <img src="./images/LOGO UTM.png" alt="UTM Logo" class="logo">
+        <nav class="nav-menu">
+            <a href="coordinatorHome.php">Dashboard</a>
+            <a href="./admin/coordinator_student_records.php">Student Records</a>
+            <a href="./admin/coordinator_approvals.php">Enrollment Approvals</a>
+            <a href="logout.php">Logout</a>
+        </nav>
+    </header>
 
-  <main class="container">
-    <h1 style="font-size: 48px; font-weight: 700; text-align: center; margin-bottom: 2rem;">Coordinator Center</h1>
-    
-    <div style="text-align: center; margin-bottom: 2rem;">
-      <h2>Welcome, <?php echo htmlspecialchars($coordinator_name); ?>!</h2>
-    </div>
+    <main class="container">
+        <h2>Welcome, <?php echo $coordinator_username; ?> (Coordinator)</h2>
 
-    <section class="student-card">
-      <div class="student-info">
-        <div><?php echo htmlspecialchars($coordinator_name); ?></div>
-        <div><?php echo htmlspecialchars($position); ?></div>
-        <div><?php echo htmlspecialchars($department); ?></div>
-        <div><strong>Email:</strong> <?php echo htmlspecialchars($coordinator_email); ?></div>
-      </div>
-      <div class="student-details">
-        <div><strong>ID:</strong> <?php echo htmlspecialchars($coordinator_utmid); ?></div>
-        <div><strong>Total Students:</strong> <?php echo $student_count; ?></div>
-        <div><strong>Department:</strong> <?php echo htmlspecialchars($department); ?></div>
-        <div><strong>Role:</strong> <span style="color: #4CAF50;">Coordinator</span></div>
-      </div>
-    </section>
+        <?php if ($conn_error): ?>
+            <p style="color: red;">Cannot connect to the database. Please check your configuration.</p>
+        <?php endif; ?>
 
-    <section class="quick-actions">
-      <h2>Coordination Actions</h2>
-      <div class="action-buttons">
-        <div class="action-card" onclick="location.href='coordinator_student_records.php'">
-          <img class="icon" src="../images/Avatar.png" alt="Record Icon" />
-          Student Records
+        <div class="dashboard-cards">
+            <div class="card">
+                <h3>Total Students</h3>
+                <p><?php echo $total_students_assigned; ?></p>
+            </div>
+            <div class="card">
+                <h3>Pending Enrollments</h3>
+                <p><?php echo $pending_enrollments; ?></p>
+            </div>
+            <div class="card">
+                <h3>Approved Enrollments</h3>
+                <p><?php echo $approved_enrollments; ?></p>
+            </div>
+            <div class="card">
+                <h3>Rejected Enrollments</h3>
+                <p><?php echo $rejected_enrollments; ?></p>
+            </div>
         </div>
-        <div class="action-card" onclick="location.href='coordinator_approvals.php'">
-          <img class="icon" src="../images/Vector.png" alt="Approval Icon" />
-          Programme Approval
-        </div>
-      </div>
-    </section>
-  </main>
 
-  <footer class="footer">
-    <div class="footer-content">
-      <div class="footer-left">
-        <p>&copy; 2025 Universiti Teknologi Malaysia</p>
-      </div>
-      <div class="footer-links">
-        <h4>Quick Links</h4>
-        <a href="https://www.utm.my/about/">About UTM</a>
-        <a href="./studentEnrollmentCenter.html">Enrollment</a>
-        <a href="https://admission.utm.my/undergraduate-malaysian/">Programs</a>
-        <a href="https://admission.utm.my/contact-us/">Help/Support</a>
-      </div>
-      <div class="footer-contact">
-        <h4>Contact Information</h4>
-        <p><strong>Location:</strong> 81310 UTM Johor Bahru, Johor, Malaysia</p>
-        <p><strong>Email:</strong> corporate@utm.my</p>
-        <p><strong>Phone:</strong> +6 07-553 3333</p>
-      </div>
-    </div>
-  </footer>
+        <div class="dashboard-sections">
+            <section class="section">
+                <h3>Quick Actions</h3>
+                <ul>
+                    <li><a href="./admin/coordinator_approvals.php" class="button">Review Pending Enrollments</a></li>
+                    <li><a href="./admin/coordinator_student_records.php" class="button">View Student Records</a></li>
+                </ul>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <a href="https://www.utm.my/about/">About UTM</a>
+                <a href="https://admission.utm.my/undergraduate-malaysian/">Programs</a>
+                <a href="./public/studentEnrollmentCenter.html">Enrollment</a>
+            </div>
+            <div class="footer-contact">
+                <h4>Contact Us</h4>
+                <p>Universiti Teknologi Malaysia</p>
+                <p>81310 Johor Bahru, Johor, Malaysia</p>
+                <p>+607-5533333</p>
+            </div>
+        </div>
+        <p class="footer-bottom">&copy; 2023 Industrial Training Management System. All rights reserved.</p>
+    </footer>
 </body>
-</html> 
+</html>
