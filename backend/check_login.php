@@ -1,54 +1,79 @@
-<?php 
+<?php
 session_start();
-require('config.php');
+include('config.php');
 
-$utmid = $_POST["utmid"];
-$password = $_POST["password"];
-$prefix = strtoupper(substr($utmid, 0, 1));
-
-if (!isset($_POST["utmid"]) || !isset($_POST["password"])) {
-    echo "UTMID or password was not sent. POST data received:<br>";
-    var_dump($_POST);
-    exit;
-}
-// Determine table and redirect
-switch ($prefix) {
-    case 'A':
-        $table = 'student';
-        $redirect = '../public/studentHome.php';
-        break;
-    case 'C':
-        $table = 'coordinator';
-        $redirect = '../public/coordinatorHome.php';
-        break;
-    case 'M':
-        $table = 'admin';
-        $redirect = '../public/adminHome.php';
-        break;
-    default:
-        echo "Invalid UTMID prefix.";
-        exit;
+function getPostData($key) {
+    return isset($_POST[$key]) ? trim($_POST[$key]) : '';
 }
 
-// Query the relevant table
-$sql = "SELECT * FROM $table WHERE utmid = '$utmid' AND password = '$password'";
-$result = mysqli_query($conn, $sql);
+$utmid = getPostData('utmid');
+$password = getPostData('password');
+
+if (empty($utmid) || empty($password)) {
+    $_SESSION['login_error'] = "UTMID and Password cannot be empty.";
+    header("Location: ../index.html");
+    exit();
+}
+
+$role = '';
+if (substr($utmid, 0, 1) == 'A') {
+    $role = 'student';
+} elseif (substr($utmid, 0, 1) == 'C') {
+    $role = 'coordinator';
+} elseif (substr($utmid, 0, 1) == 'M') {
+    $role = 'admin';
+} else {
+    $_SESSION['login_error'] = "Invalid UTMID format.";
+    header("Location: ../index.html");
+    exit();
+}
+
+$sql = "SELECT utmid, password FROM users WHERE utmid = ? AND role = ?";
+$stmt = mysqli_prepare($conn, $sql);
+
+if ($stmt === false) {
+    error_log("Failed to prepare statement: " . mysqli_error($conn));
+    $_SESSION['login_error'] = "An internal server error occurred. Please try again later.";
+    header("Location: ../index.html");
+    exit();
+}
+
+mysqli_stmt_bind_param($stmt, "ss", $utmid, $role);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
 
 if ($result && mysqli_num_rows($result) == 1) {
-    $user = mysqli_fetch_assoc($result);
+    $row = mysqli_fetch_assoc($result);
+    $stored_hashed_password = $row['password'];
 
-    $_SESSION["Login"] = "YES";
-    $_SESSION["USER"] = $user["first_name"] . ' ' . $user["last_name"];
-    $_SESSION["utmid"] = $user["utmid"];
-    $_SESSION["ROLE"] = $prefix;
+    //hi. this is izzat. i added a verify password feature.
+    if (password_verify($password, $stored_hashed_password)) {
+        $_SESSION['utmid'] = $utmid;
+        $_SESSION['role'] = $role;
 
-    header("Location: $redirect");
-    exit;
+        session_regenerate_id(true);
+
+        if ($role == 'admin') {
+            header("Location: ../adminHome.php");
+        } elseif ($role == 'coordinator') {
+            header("Location: ../coordinatorHome.php");
+        } elseif ($role == 'student') {
+            header("Location: ../studentHome.php");
+        }
+        exit();
+    } else {
+        // um. invalid password. lol.
+        $_SESSION['login_error'] = "Incorrect Password.";
+        header("Location: ../index.html");
+        exit();
+    }
 } else {
-    $_SESSION["Login"] = "NO";
-    header("Location: ../public/loginPage.html?error=invalid");
-    exit;
+    // this is a user not found thingy
+    $_SESSION['lisogin_error'] = "User not found or role mmatch.";
+    header("Location: ../index.html");
+    exit();
 }
 
+mysqli_stmt_close($stmt);
 mysqli_close($conn);
 ?>
