@@ -40,6 +40,7 @@ $students_result = mysqli_query($conn, $students_sql);
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Student Records - Coordinator Dashboard</title>
+  <link rel="icon" href="https://brand.utm.my/wp-content/uploads/sites/21/2020/08/cropped-UTMsiteicon-32x32.png" />
   <link rel="stylesheet" href="../style/style.css" />
   <link rel="stylesheet" href="../style/homeStyle.css" />
   <link rel="stylesheet" href="../style/tableStyle.css" />
